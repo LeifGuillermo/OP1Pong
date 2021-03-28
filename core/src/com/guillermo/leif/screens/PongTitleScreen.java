@@ -8,13 +8,14 @@ import com.guillermo.leif.Op1Pong;
 import com.guillermo.leif.controller.Op1PongTitleHandler;
 import com.guillermo.leif.controller.midiInput.MidiListener;
 import com.guillermo.leif.controller.midiInput.Op1Controller;
-import com.guillermo.leif.controller.midiInput.Op1Handler;
 
 import javax.sound.midi.MidiUnavailableException;
+import java.util.Random;
 
 public class PongTitleScreen implements Screen {
     private final Op1Pong game;
     public boolean encoderPressed = false;
+    Random random = new Random();
     private OrthographicCamera camera;
     private MidiListener listener;
 
@@ -37,23 +38,26 @@ public class PongTitleScreen implements Screen {
     }
 
     @Override
-    public void show() {
-
-    }
-
-    @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(0, 0, 0, 1);
+        game.font.setColor(random.nextFloat(), random.nextFloat(),
+                random.nextFloat(), 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Op-1 Pong", 100, 150);
-        game.font.draw(game.batch, "Press any encoder to begin", 100, 100);
+        game.font.draw(game.batch, "Op-1 Pong",
+                GlobalVars.viewWidth / 2f - 100,
+                GlobalVars.viewHeight / 2f + (6 * game.font.getLineHeight() / 2));
+        game.font.draw(game.batch, "Press any encoder to begin",
+                GlobalVars.viewWidth / 2f - 20,
+                GlobalVars.viewHeight / 2f + (3 * game.font.getLineHeight() / 2));
         game.batch.end();
 
         if (encoderPressed) {
+            game.font.setColor(1, 1,
+                    1, 1);
             game.setScreen(new PongGameScreen(game));
             dispose();
         }
@@ -82,5 +86,10 @@ public class PongTitleScreen implements Screen {
     @Override
     public void dispose() {
         listener.stopListening();
+    }
+
+    @Override
+    public void show() {
+
     }
 }

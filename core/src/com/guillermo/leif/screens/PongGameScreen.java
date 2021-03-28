@@ -19,10 +19,8 @@ public class PongGameScreen implements Screen {
     private GameState gamestate;
     private Op1PongHandler op1PongHandler;
 
-
     FitViewport viewport;
     OrthographicCamera camera;
-    ShapeRenderer shapeRenderer;
 
     public PongGameScreen(final Op1Pong game) {
         this.game = game;
@@ -30,6 +28,7 @@ public class PongGameScreen implements Screen {
         camera.setToOrtho(false, GlobalVars.viewWidth, GlobalVars.viewHeight);
 
         gamestate = new GameState();
+
         Op1PongHandler op1PongHandler = new Op1PongHandler(gamestate);
         Op1Controller op1Controller = new Op1Controller(this, op1PongHandler);
         MidiListener listener = new MidiListener(op1Controller);
@@ -40,68 +39,64 @@ public class PongGameScreen implements Screen {
         }
     }
 
-    /**
-     * Called when this screen becomes the current screen for a {@link Game}.
-     */
     @Override
     public void show() {
 
     }
 
-    /**
-     * Called when the screen should render itself.
-     *
-     * @param delta The time in seconds since the last render.
-     */
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(0, 0, 0, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Game started", 100, 150);
+        game.font.draw(game.batch, "P1 Score: " + gamestate.player1.score, 20,
+                camera.viewportHeight-20);
+        game.font.draw(game.batch, "P2 Score: " + gamestate.player2.score,
+                camera.viewportWidth- 20 - 75,
+                camera.viewportHeight-20);
         game.batch.end();
+        renderShapes();
+
+
     }
 
-    /**
-     * @param width
-     * @param height
-     * @see ApplicationListener#resize(int, int)
-     */
+    private void renderShapes() {
+
+        game.shapeRenderer.begin();
+        game.shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+
+        game.shapeRenderer.rect(gamestate.player1.x, gamestate.player1.y,
+                gamestate.player1.width, gamestate.player1.height);
+        game.shapeRenderer.rect(gamestate.player2.x, gamestate.player2.y,
+                gamestate.player2.width, gamestate.player2.height);
+        game.shapeRenderer.circle(gamestate.pongBall.x, gamestate.pongBall.y,
+                gamestate.pongBall.radius);
+        game.shapeRenderer.end();
+    }
+
     @Override
     public void resize(int width, int height) {
 
     }
 
-    /**
-     * @see ApplicationListener#pause()
-     */
     @Override
     public void pause() {
 
     }
 
-    /**
-     * @see ApplicationListener#resume()
-     */
     @Override
     public void resume() {
 
     }
 
-    /**
-     * Called when this screen is no longer the current screen for a {@link Game}.
-     */
     @Override
     public void hide() {
 
     }
 
-    /**
-     * Called when this screen should release all resources.
-     */
     @Override
     public void dispose() {
 

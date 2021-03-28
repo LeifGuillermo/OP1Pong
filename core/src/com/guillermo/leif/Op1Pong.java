@@ -17,12 +17,15 @@ import static com.guillermo.leif.GlobalVars.viewWidth;
 
 public class Op1Pong extends Game {
     public SpriteBatch batch;
+    public ShapeRenderer shapeRenderer;
     public BitmapFont font;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont(); // TODO use something other than Arial
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
         this.setScreen(new PongTitleScreen(this));
     }
 
@@ -35,5 +38,6 @@ public class Op1Pong extends Game {
     public void dispose() {
         batch.dispose();
         font.dispose();
+        shapeRenderer.dispose();
     }
 }
