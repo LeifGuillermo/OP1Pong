@@ -1,66 +1,86 @@
 package com.guillermo.leif.screens;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.guillermo.leif.GlobalVars;
+import com.guillermo.leif.Op1Pong;
+import com.guillermo.leif.controller.Op1PongTitleHandler;
+import com.guillermo.leif.controller.midiInput.MidiListener;
+import com.guillermo.leif.controller.midiInput.Op1Controller;
+import com.guillermo.leif.controller.midiInput.Op1Handler;
 
-// TODO - Implement a title screen
+import javax.sound.midi.MidiUnavailableException;
+
 public class PongTitleScreen implements Screen {
-    /**
-     * Called when this screen becomes the current screen for a {@link Game}.
-     */
+    private final Op1Pong game;
+    public boolean encoderPressed = false;
+    private OrthographicCamera camera;
+    private MidiListener listener;
+
+    public PongTitleScreen(final Op1Pong game) {
+        this.game = game;
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, GlobalVars.viewWidth, GlobalVars.viewHeight);
+        Op1Controller controller = new Op1Controller(this,
+                new Op1PongTitleHandler(this));
+        listener = new MidiListener(controller);
+        try {
+            listener.beginListening();
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setEncoderPressed(boolean pressed) {
+        encoderPressed = pressed;
+    }
+
     @Override
     public void show() {
 
     }
 
-    /**
-     * Called when the screen should render itself.
-     *
-     * @param delta The time in seconds since the last render.
-     */
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(0, 0, 0.2f, 1);
 
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+
+        game.batch.begin();
+        game.font.draw(game.batch, "Op-1 Pong", 100, 150);
+        game.font.draw(game.batch, "Press any encoder to begin", 100, 100);
+        game.batch.end();
+
+        if (encoderPressed) {
+            game.setScreen(new PongGameScreen(game));
+            dispose();
+        }
     }
 
-    /**
-     * @param width
-     * @param height
-     * @see ApplicationListener#resize(int, int)
-     */
     @Override
     public void resize(int width, int height) {
 
     }
 
-    /**
-     * @see ApplicationListener#pause()
-     */
     @Override
     public void pause() {
 
     }
 
-    /**
-     * @see ApplicationListener#resume()
-     */
     @Override
     public void resume() {
 
     }
 
-    /**
-     * Called when this screen is no longer the current screen for a {@link Game}.
-     */
     @Override
     public void hide() {
-        dispose();
+
     }
 
-    /**
-     * Called when this screen should release all resources.
-     */
     @Override
     public void dispose() {
-
+        listener.stopListening();
     }
 }

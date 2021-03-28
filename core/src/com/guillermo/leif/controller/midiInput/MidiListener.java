@@ -15,6 +15,9 @@ public class MidiListener implements MidiDeviceReceiver {
         this.midiGameController = midiGameController;
     }
 
+    public void stopListening() {
+        op1Device.close();
+    }
     public void beginListening() throws MidiUnavailableException {
         /*
          * Example:
