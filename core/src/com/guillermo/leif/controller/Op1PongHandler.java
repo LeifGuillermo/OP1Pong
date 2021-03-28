@@ -15,22 +15,23 @@ public class Op1PongHandler implements Op1Handler {
 
     @Override
     public void handleBlueEncoderTurned(int messageValue) {
-        // todo: turn left player
+        System.out.println("BLUE ENCODER TURNED");
+        this.gameState.player1.move(messageValue);
     }
 
     @Override
     public void handleGreenEncoderTurned(int messageValue) {
-
+        this.gameState.player1.rotate(messageValue);
     }
 
     @Override
     public void handleWhiteEncoderTurned(int messageValue) {
-
+        this.gameState.player2.rotate(messageValue);
     }
 
     @Override
     public void handleOrangeEncoderTurned(int messageValue) {
-
+        this.gameState.player2.move(messageValue);
     }
 
     @Override

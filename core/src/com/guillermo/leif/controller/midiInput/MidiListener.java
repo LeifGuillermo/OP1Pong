@@ -7,17 +7,13 @@ import java.util.List;
 public class MidiListener implements MidiDeviceReceiver {
     public static final boolean listDevices = false;
     private static final String OP1_DEVICE_NAME = "OP-1 Midi Device";
+    private final MidiGameController midiGameController;
     private MidiDevice op1Device;
-
-    private MidiGameController midiGameController;
 
     public MidiListener(MidiGameController midiGameController) {
         this.midiGameController = midiGameController;
     }
 
-    public void stopListening() {
-        op1Device.close();
-    }
     public void beginListening() throws MidiUnavailableException {
         /*
          * Example:

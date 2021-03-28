@@ -85,7 +85,6 @@ public class PongTitleScreen implements Screen {
 
     @Override
     public void dispose() {
-        listener.stopListening();
     }
 
     @Override
