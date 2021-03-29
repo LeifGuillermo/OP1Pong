@@ -38,19 +38,16 @@ public class Op1PongTitleHandler implements Op1Handler {
 
     @Override
     public void handleGreenEncoderPressed(int messageValue) {
-        System.out.println("pressed");
         screen.setEncoderPressed(true);
     }
 
     @Override
     public void handleWhiteEncoderPressed(int messageValue) {
-        System.out.println("pressed");
         screen.setEncoderPressed(true);
     }
 
     @Override
     public void handleOrangeEncoderPressed(int messageValue) {
-        System.out.println("pressed");
         screen.setEncoderPressed(true);
     }
 

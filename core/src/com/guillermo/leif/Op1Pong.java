@@ -9,7 +9,6 @@ import com.guillermo.leif.screens.PongTitleScreen;
 public class Op1Pong extends Game {
     public SpriteBatch batch;
     public ShapeRenderer shapeRenderer;
-    //    public ShapeDrawer shapeDrawer;
     public BitmapFont font;
 
     @Override

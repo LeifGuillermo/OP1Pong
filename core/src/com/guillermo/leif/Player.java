@@ -1,34 +1,35 @@
 package com.guillermo.leif;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
 public class Player {
-    //    todo Polygon hitbox;
+    //    private Rectangle hitBox;
+    private final Polygon polygon;
     public String name;
     // player state
     public int score;
     public int degreesRotation; // vertical is 0
     public Vector3 normalDirection; // direction orthogonal to paddle.
     public int speed; // no need for velocity since only traveling on y axis.
+    public int rotationSpeed;
     // player graphics
     public Color outlineColor;
     public Color fillColor;
     public int width;
     public int height;
-    private Rectangle hitBox;
-    private float x;
-    private float y;
-    private float lastMoveValue = 127 / 2f;
-    private float lastRotateValue = 127 / 2f;
+    private int lastMoveValue = 127 / 2;
+    private int lastRotateValue = 127 / 2;
+
+    public Circle pivot;
 
     public Player(String name, int x, int y) {
         this.name = name;
-        this.x = x;
-        this.y = y;
-
-        speed = 30;
+        speed = 50;
+        rotationSpeed = 10;
         score = 0;
         degreesRotation = 0;
         normalDirection = new Vector3();
@@ -36,63 +37,78 @@ public class Player {
         normalDirection.y = 0;
         normalDirection.z = 0;
         outlineColor = fillColor = new Color(1, 1, 1, 1);
-        width = 5;
+
+        width = 6;
         height = 150;
-        hitBox = new Rectangle();
-        hitBox.x = x;
-        hitBox.y = y;
-        hitBox.width = width;
-        hitBox.height = height;
+
+        float[] rectanglePoly = new float[]{
+                x, y,
+                x + width, y,
+                x + width, y + height,
+                x, y + height
+        };
+        polygon = new Polygon(rectanglePoly);
+        // set origin to center of rectangle to make it easy to rotate
+        // correctly.
+        polygon.setOrigin(x + (int)(width / 2f), y + (int)(height / 2f));
+        pivot = new Circle(polygon.getOriginX(), polygon.getOriginY(),
+                width/2f);
+    }
+
+    public Polygon getPolygon() {
+        return polygon;
     }
 
     public float getX() {
-        return x;
+        return polygon.getX();
     }
 
     public void setX(float x) {
-        this.x = x;
-        this.hitBox.x = x;
+        this.polygon.setPosition(x, getY());
     }
 
     public float getY() {
-        return y;
+        return polygon.getY();
     }
 
     public void setY(float y) {
-        this.y = y;
-        this.hitBox.y = y;
+        this.polygon.setPosition(getX(), y);
     }
 
+
     public void move(int value) {
-        if (turnIsLeft(value)) {
-            setY(getY() + speed);
-        } else if (turnIsRight(value)) {
-            setY(getY() - speed);
+        if (turnIsLeft(value, lastMoveValue)) {
+            this.polygon.translate(0, speed);
+        } else if (turnIsRight(value, lastMoveValue)) {
+            this.polygon.translate(0, -speed);
         }
-
-        if(getY() < 0) {
-            setY(0);
+        if (polygon.getY() > 362) {
+            polygon.setPosition(polygon.getX(),362);
         }
-        if(getY() > GlobalVars.viewHeight - height) {
-            setY(GlobalVars.viewHeight - height);
+        if (polygon.getY() < -511) {
+            polygon.setPosition(polygon.getX(), -511);
         }
-
+        pivot.setPosition(polygon.getOriginX(),
+                polygon.getY() + GlobalVars.viewHeight/2f + height/2f);
         lastMoveValue = value;
     }
 
     public void rotate(int value) {
-
+        if (turnIsLeft(value, lastRotateValue)) {
+            this.polygon.rotate(rotationSpeed);
+        } else if (turnIsRight(value, lastRotateValue)) {
+            this.polygon.rotate(-rotationSpeed);
+        }
+        lastRotateValue = value;
     }
 
-    private boolean turnIsLeft(int value) {
-        return lastMoveValue > value || (0 == lastMoveValue && 0 == value);
+
+    private boolean turnIsLeft(int value, int lastValue) {
+        return lastValue > value || (0 == lastValue && 0 == value);
     }
 
-    private boolean turnIsRight(int value) {
-        return lastMoveValue < value || (127 == lastMoveValue && 127 == value);
+    private boolean turnIsRight(int value, int lastValue) {
+        return lastValue < value || (127 == lastValue && 127 == value);
     }
 
-    public Rectangle getHitBox() {
-        return this.hitBox;
-    }
 }

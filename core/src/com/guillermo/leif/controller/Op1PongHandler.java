@@ -15,7 +15,6 @@ public class Op1PongHandler implements Op1Handler {
 
     @Override
     public void handleBlueEncoderTurned(int messageValue) {
-        System.out.println("BLUE ENCODER TURNED");
         this.gameState.player1.move(messageValue);
     }
 

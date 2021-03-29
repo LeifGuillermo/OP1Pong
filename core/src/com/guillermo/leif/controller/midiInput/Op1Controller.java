@@ -13,7 +13,6 @@ public class Op1Controller implements MidiGameController {
     private Screen screen;
 
     public Op1Controller(Screen screen, Op1Handler handler) {
-        System.out.println("HANNNNNNNNNNDLLLLLLLLER: " + handler);
         this.screen = screen;
         this.handler = handler;
     }
@@ -22,7 +21,6 @@ public class Op1Controller implements MidiGameController {
     public void midiReceived(byte[] msg, long timestamp) {
         int encoderValue = msg[1];
         int messageValue = msg[2];
-        System.out.println("Message received");
 //        System.out.println("encoderValue: " + encoderValue); // use to debug
         switch (encoderValue) {
             // Encoders turned:

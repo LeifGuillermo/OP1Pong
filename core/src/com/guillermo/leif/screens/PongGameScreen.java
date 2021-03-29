@@ -3,14 +3,13 @@ package com.guillermo.leif.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.guillermo.leif.GameState;
-import com.guillermo.leif.GlobalVars;
-import com.guillermo.leif.Op1Pong;
-import com.guillermo.leif.PongBall;
+import com.guillermo.leif.*;
 import com.guillermo.leif.controller.Op1PongHandler;
 import com.guillermo.leif.controller.midiInput.MidiListener;
 import com.guillermo.leif.controller.midiInput.Op1Controller;
@@ -18,7 +17,6 @@ import com.guillermo.leif.controller.midiInput.Op1Controller;
 import javax.sound.midi.MidiUnavailableException;
 
 public class PongGameScreen implements Screen {
-    FitViewport viewport;
     OrthographicCamera camera;
     private Op1Pong game;
     private GameState gamestate;
@@ -32,7 +30,8 @@ public class PongGameScreen implements Screen {
     public PongGameScreen(final Op1Pong game) {
         this.game = game;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, GlobalVars.viewWidth, GlobalVars.viewHeight);
+        camera.setToOrtho(false, GlobalVars.viewWidth,
+                GlobalVars.viewHeight);
 
         gamestate = new GameState();
 
@@ -93,17 +92,47 @@ public class PongGameScreen implements Screen {
             gamestate.pongBall = new PongBall();
         }
 
-        // handle bounce off paddle
-        boolean player1Collide =
-                gamestate.pongBall.getHitBox().overlaps(gamestate.player1.getHitBox());
-        boolean player2Collide =
-                gamestate.pongBall.getHitBox().overlaps(gamestate.player2.getHitBox());
-
         float direction = gamestate.pongBall.velocity.x;
 
-        if (player1Collide && direction < 0 || player2Collide && direction > 0){
-            gamestate.pongBall.velocity.x *= -1;
+        boolean player1Collide =
+                Intersector.overlapConvexPolygons(gamestate.pongBall.polygon,
+                        gamestate.player1.getPolygon());
+        boolean player2Collide =
+                Intersector.overlapConvexPolygons(gamestate.pongBall.polygon,
+                        gamestate.player2.getPolygon());
+
+        if (player1Collide && direction < 0 || player2Collide && direction > 0) {
+//            gamestate.pongBall.velocity.x *= -1
+            if (player1Collide) {
+                gamestate.pongBall.velocity = reflectBall(gamestate.player1,
+                        gamestate.pongBall.velocity, gamestate.pongBall.speed);
+            } else {
+                gamestate.pongBall.velocity = reflectBall(gamestate.player2,
+                        gamestate.pongBall.velocity, gamestate.pongBall.speed);
+            }
         }
+    }
+
+    private Vector2 reflectBall(Player player, Vector2 ballVelocity,
+                                int speed) {
+        float[] vertices = player.getPolygon().getVertices();
+        // top left point
+        float x1 = vertices[0];
+        float y1 = vertices[1];
+        // top right point
+        float x2 = vertices[6];
+        float y2 = vertices[7];
+
+        float ix = -(x2 - x1);
+        float iy = y2 - y1;
+
+        Vector2 normalVector = new Vector2(iy, ix);
+        float angle = ballVelocity.dot(normalVector);
+
+        ballVelocity = ballVelocity.rotateAroundDeg(normalVector, angle);
+        ballVelocity.nor();
+        return ballVelocity.scl(-speed);
+
     }
 
     private float getDistanceTraveledThroughBottomOfScreen() {
@@ -118,14 +147,41 @@ public class PongGameScreen implements Screen {
 
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        game.shapeRenderer.setColor(Color.BLUE);
+        game.shapeRenderer.polygon(gamestate.player1.getPolygon().getTransformedVertices());
+        game.shapeRenderer.setColor(Color.WHITE);
+        game.shapeRenderer.end();
 
-        game.shapeRenderer.rect(p1x, p1y,
-                gamestate.player1.width, gamestate.player1.height);
-        game.shapeRenderer.rect(p2x, p2y,
-                gamestate.player2.width, gamestate.player2.height);
+        game.shapeRenderer.begin();
+        game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        game.shapeRenderer.setColor(1, 0.25f, 0.25f, 1);
+        game.shapeRenderer.polygon(gamestate.player2.getPolygon().getTransformedVertices());
+        game.shapeRenderer.setColor(Color.WHITE);
+        game.shapeRenderer.end();
+
+        game.shapeRenderer.begin();
+        game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        game.shapeRenderer.setColor(Color.GREEN);
+        game.shapeRenderer.circle(gamestate.player1.pivot.x,
+                gamestate.player1.pivot.y, gamestate.player1.pivot.radius);
+        game.shapeRenderer.setColor(Color.WHITE);
+        game.shapeRenderer.end();
+
+        game.shapeRenderer.begin();
+        game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        game.shapeRenderer.setColor(Color.WHITE);
+        game.shapeRenderer.circle(gamestate.player2.pivot.x,
+                gamestate.player2.pivot.y, gamestate.player2.pivot.radius);
+        game.shapeRenderer.setColor(Color.WHITE);
+        game.shapeRenderer.end();
+
+        game.shapeRenderer.begin();
+        game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        game.shapeRenderer.setColor(Color.PURPLE);
         game.shapeRenderer.circle(gamestate.pongBall.getX(),
                 gamestate.pongBall.getY(),
                 gamestate.pongBall.radius);
+        game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
     }
 

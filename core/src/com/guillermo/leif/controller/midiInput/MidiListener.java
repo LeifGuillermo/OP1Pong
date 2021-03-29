@@ -74,7 +74,7 @@ public class MidiListener implements MidiDeviceReceiver {
     public void send(MidiMessage message, long timeStamp) {
         byte[] msg = message.getMessage();
 
-        System.out.println(Arrays.toString(msg));
+//        System.out.println(Arrays.toString(msg));
 
         midiGameController.midiReceived(msg, timeStamp);
 
