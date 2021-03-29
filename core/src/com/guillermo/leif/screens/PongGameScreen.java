@@ -17,15 +17,11 @@ import com.guillermo.leif.controller.midiInput.Op1Controller;
 import javax.sound.midi.MidiUnavailableException;
 
 public class PongGameScreen implements Screen {
+    private final Op1Pong game;
+    private final GameState gamestate;
+    private final Sound wallBounceSound;
+    private final Sound paddleBounceSound;
     OrthographicCamera camera;
-    private Op1Pong game;
-    private GameState gamestate;
-    private Op1PongHandler op1PongHandler;
-    private Sound wallBounceSound;
-    private float p1x;
-    private float p2x;
-    private float p1y;
-    private float p2y;
 
     public PongGameScreen(final Op1Pong game) {
         this.game = game;
@@ -35,10 +31,9 @@ public class PongGameScreen implements Screen {
 
         gamestate = new GameState();
 
-        wallBounceSound = Gdx.audio.newSound(Gdx.files.internal("wall-bounce" +
-                ".wav"));
-
-        op1PongHandler = new Op1PongHandler(gamestate);
+        wallBounceSound = Gdx.audio.newSound(Gdx.files.internal("wall-bounce.wav"));
+        paddleBounceSound = Gdx.audio.newSound(Gdx.files.internal("paddle-bounce.wav"));
+        Op1PongHandler op1PongHandler = new Op1PongHandler(gamestate);
         Op1Controller op1Controller = new Op1Controller(this, op1PongHandler);
         MidiListener listener = new MidiListener(op1Controller);
         try {
@@ -110,6 +105,7 @@ public class PongGameScreen implements Screen {
                 gamestate.pongBall.velocity = reflectBall(gamestate.player2,
                         gamestate.pongBall.velocity, gamestate.pongBall.speed);
             }
+            paddleBounceSound.play();
         }
     }
 
@@ -125,13 +121,16 @@ public class PongGameScreen implements Screen {
 
         float ix = -(x2 - x1);
         float iy = y2 - y1;
-
         Vector2 normalVector = new Vector2(iy, ix);
+
+        int newVelocityDirection = ballVelocity.x > 0 ? -1 : 1;
+
         float angle = ballVelocity.dot(normalVector);
 
         ballVelocity = ballVelocity.rotateAroundDeg(normalVector, angle);
         ballVelocity.nor();
-        return ballVelocity.scl(-speed);
+        ballVelocity.x = newVelocityDirection * ballVelocity.x;
+        return ballVelocity.scl(speed);
 
     }
 
@@ -140,11 +139,6 @@ public class PongGameScreen implements Screen {
     }
 
     private void renderShapes() {
-        p1x = gamestate.player1.getX();
-        p2x = gamestate.player2.getX();
-        p1y = gamestate.player1.getY();
-        p2y = gamestate.player2.getY();
-
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(Color.BLUE);

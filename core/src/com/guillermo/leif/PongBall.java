@@ -17,7 +17,7 @@ public class PongBall {
     private float x, y; // position
 
     public PongBall() {
-        this.radius = 15;
+        this.radius = 25;
         this.x = GlobalVars.viewWidth / 2f - radius;
         this.y = GlobalVars.viewHeight / 2f - radius;
         this.velocity = new Vector2();
@@ -54,12 +54,12 @@ public class PongBall {
 
     public float[] createNPointPolygonArray(int n, float radius) {
         float[] points = new float[n * 2];
-        for (int currentPoint = 1; currentPoint <= n; currentPoint++) {
+        for (int currentPoint = 0; currentPoint < n; currentPoint++) {
             float theta = (2 * (float) Math.PI) / n;
             float angle = (theta * currentPoint);
 
-            points[currentPoint - 1] = radius * (float) Math.cos(angle);
-            points[currentPoint] = radius * (float) Math.sin(angle);
+            points[currentPoint] = radius * (float) Math.cos(angle);
+            points[currentPoint+1] = radius * (float) Math.sin(angle);
         }
         return points;
     }
