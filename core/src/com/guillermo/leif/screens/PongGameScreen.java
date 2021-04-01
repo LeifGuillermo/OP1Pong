@@ -18,7 +18,7 @@ import javax.sound.midi.MidiUnavailableException;
 
 public class PongGameScreen implements Screen {
     private final Op1Pong game;
-    private final GameState gamestate;
+    private final GameState gameState;
     private final Sound wallBounceSound;
     private final Sound paddleBounceSound;
     OrthographicCamera camera;
@@ -29,11 +29,11 @@ public class PongGameScreen implements Screen {
         camera.setToOrtho(false, GlobalVars.viewWidth,
                 GlobalVars.viewHeight);
 
-        gamestate = new GameState();
+        gameState = new GameState();
 
         wallBounceSound = Gdx.audio.newSound(Gdx.files.internal("wall-bounce.wav"));
         paddleBounceSound = Gdx.audio.newSound(Gdx.files.internal("paddle-bounce.wav"));
-        Op1PongHandler op1PongHandler = new Op1PongHandler(gamestate);
+        Op1PongHandler op1PongHandler = new Op1PongHandler(gameState);
         Op1Controller op1Controller = new Op1Controller(this, op1PongHandler);
         MidiListener listener = new MidiListener(op1Controller);
         try {
@@ -56,9 +56,9 @@ public class PongGameScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         updateBallLocation();
         game.batch.begin();
-        game.font.draw(game.batch, "P1 Score: " + gamestate.player1.score, 20,
+        game.font.draw(game.batch, "P1 Score: " + gameState.player1.score, 20,
                 20);
-        game.font.draw(game.batch, "P2 Score: " + gamestate.player2.score,
+        game.font.draw(game.batch, "P2 Score: " + gameState.player2.score,
                 camera.viewportWidth - 20 - 75,
                 20);
         game.batch.end();
@@ -66,44 +66,44 @@ public class PongGameScreen implements Screen {
     }
 
     private void updateBallLocation() {
-        gamestate.pongBall.setX(gamestate.pongBall.velocity.x + gamestate.pongBall.getX());
-        gamestate.pongBall.setY(gamestate.pongBall.velocity.y + gamestate.pongBall.getY());
+        gameState.pongBall.setX(gameState.pongBall.velocity.x + gameState.pongBall.getX());
+        gameState.pongBall.setY(gameState.pongBall.velocity.y + gameState.pongBall.getY());
 
-        if (gamestate.pongBall.getY() < 0 && gamestate.pongBall.velocity.y < 0) {
-            gamestate.pongBall.setY((gamestate.pongBall.getY() + gamestate.pongBall.radius));
-            gamestate.pongBall.velocity.y *= -1;
+        if (gameState.pongBall.getY() < 0 && gameState.pongBall.velocity.y < 0) {
+            gameState.pongBall.setY((gameState.pongBall.getY() + gameState.pongBall.radius));
+            gameState.pongBall.velocity.y *= -1;
             wallBounceSound.play();
-        } else if (((gamestate.pongBall.getY() + gamestate.pongBall.radius) > GlobalVars.viewHeight) && gamestate.pongBall.velocity.y > 0) {
-            gamestate.pongBall.setY(GlobalVars.viewHeight - getDistanceTraveledThroughBottomOfScreen());
-            gamestate.pongBall.velocity.y *= -1;
+        } else if (((gameState.pongBall.getY() + gameState.pongBall.radius) > GlobalVars.viewHeight) && gameState.pongBall.velocity.y > 0) {
+            gameState.pongBall.setY(GlobalVars.viewHeight - getDistanceTraveledThroughBottomOfScreen());
+            gameState.pongBall.velocity.y *= -1;
             wallBounceSound.play();
         }
 
-        if (gamestate.pongBall.getX() + gamestate.pongBall.radius >= GlobalVars.viewWidth) {
-            gamestate.player1.score++;
-            gamestate.pongBall = new PongBall();
-        } else if (gamestate.pongBall.getX() <= 0) {
-            gamestate.player2.score++;
-            gamestate.pongBall = new PongBall();
+        if (gameState.pongBall.getX() + gameState.pongBall.radius >= GlobalVars.viewWidth) {
+            gameState.player1.score++;
+            gameState.pongBall = new PongBall();
+        } else if (gameState.pongBall.getX() <= 0) {
+            gameState.player2.score++;
+            gameState.pongBall = new PongBall();
         }
 
-        float direction = gamestate.pongBall.velocity.x;
+        float direction = gameState.pongBall.velocity.x;
 
         boolean player1Collide =
-                Intersector.overlapConvexPolygons(gamestate.pongBall.polygon,
-                        gamestate.player1.getPolygon());
+                Intersector.overlapConvexPolygons(gameState.pongBall.polygon,
+                        gameState.player1.getPolygon());
         boolean player2Collide =
-                Intersector.overlapConvexPolygons(gamestate.pongBall.polygon,
-                        gamestate.player2.getPolygon());
+                Intersector.overlapConvexPolygons(gameState.pongBall.polygon,
+                        gameState.player2.getPolygon());
 
         if (player1Collide && direction < 0 || player2Collide && direction > 0) {
 //            gamestate.pongBall.velocity.x *= -1
             if (player1Collide) {
-                gamestate.pongBall.velocity = reflectBall(gamestate.player1,
-                        gamestate.pongBall.velocity, gamestate.pongBall.speed);
+                gameState.pongBall.velocity = reflectBall(gameState.player1,
+                        gameState.pongBall.velocity, gameState.pongBall.speed);
             } else {
-                gamestate.pongBall.velocity = reflectBall(gamestate.player2,
-                        gamestate.pongBall.velocity, gamestate.pongBall.speed);
+                gameState.pongBall.velocity = reflectBall(gameState.player2,
+                        gameState.pongBall.velocity, gameState.pongBall.speed);
             }
             paddleBounceSound.play();
         }
@@ -135,46 +135,46 @@ public class PongGameScreen implements Screen {
     }
 
     private float getDistanceTraveledThroughBottomOfScreen() {
-        return (GlobalVars.viewHeight - (gamestate.pongBall.getY() + gamestate.pongBall.radius));
+        return (GlobalVars.viewHeight - (gameState.pongBall.getY() + gameState.pongBall.radius));
     }
 
     private void renderShapes() {
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(Color.BLUE);
-        game.shapeRenderer.polygon(gamestate.player1.getPolygon().getTransformedVertices());
+        game.shapeRenderer.polygon(gameState.player1.getPolygon().getTransformedVertices());
         game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
 
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(1, 0.25f, 0.25f, 1);
-        game.shapeRenderer.polygon(gamestate.player2.getPolygon().getTransformedVertices());
+        game.shapeRenderer.polygon(gameState.player2.getPolygon().getTransformedVertices());
         game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
 
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(Color.GREEN);
-        game.shapeRenderer.circle(gamestate.player1.pivot.x,
-                gamestate.player1.pivot.y, gamestate.player1.pivot.radius);
+        game.shapeRenderer.circle(gameState.player1.pivot.x,
+                gameState.player1.pivot.y, gameState.player1.pivot.radius);
         game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
 
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(Color.WHITE);
-        game.shapeRenderer.circle(gamestate.player2.pivot.x,
-                gamestate.player2.pivot.y, gamestate.player2.pivot.radius);
+        game.shapeRenderer.circle(gameState.player2.pivot.x,
+                gameState.player2.pivot.y, gameState.player2.pivot.radius);
         game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
 
         game.shapeRenderer.begin();
         game.shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         game.shapeRenderer.setColor(Color.PURPLE);
-        game.shapeRenderer.circle(gamestate.pongBall.getX(),
-                gamestate.pongBall.getY(),
-                gamestate.pongBall.radius);
+        game.shapeRenderer.circle(gameState.pongBall.getX(),
+                gameState.pongBall.getY(),
+                gameState.pongBall.radius);
         game.shapeRenderer.setColor(Color.WHITE);
         game.shapeRenderer.end();
     }

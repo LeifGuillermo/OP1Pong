@@ -58,7 +58,7 @@ public class PongTitleScreen implements Screen {
         if (encoderPressed) {
             game.font.setColor(1, 1,
                     1, 1);
-            game.setScreen(new PongGameScreen(game));
+            game.changeToScreen(Op1Pong.PongScreen.GAME);
             dispose();
         }
     }
